@@ -1,0 +1,47 @@
+- name: coyote
+  title: kafka-connect-oracle-
+- name: Setup Containers
+  entries:
+    - name: Docker Compose Pull
+      command: |
+        docker-compose -f docker-compose-all.yml -p kafkaconnectoracle pull
+      ignore_exit_code: true
+      stdout_not_has: ["error"]
+    - name: Docker Compose Up
+      command: docker-compose -f docker-compose-all.yml -p kafkaconnectoracle up -d
+    - name: Wait for Connect to get up
+      command: |
+        bash -c '
+          for ((i=0;i<30;i++)); do
+            sleep 10;
+            docker exec connect curl "http://localhost:8083/connectors/" && break;
+          done'
+      nolog: false
+- name: Setup Oracle Connectors
+  entries:
+    - name: Create a Increment Distributed Connector
+      command: |
+        curl -vs --stderr - -X POST -H "Content-Type: application/json"
+             --data @aws-rumo-integ-source-translogic-tfa-incrementing-1.json
+             "http://localhost:8083/connectors"
+      stdout_has: ["HTTP/1.1 [2][0-9][0-9] "]
+      stdout_not_has: ["HTTP/1.1 [45][0-9][0-9] "]
+    - name: Create a Timestamp Distributed Connector
+      command: |
+        curl -vs --stderr - -X POST -H "Content-Type: application/json"
+             --data @aws-rumo-integ-source-translogic-tfa-timestamp-1.json
+             "http://localhost:8083/connectors"
+      stdout_has: ["HTTP/1.1 [2][0-9][0-9] "]
+      stdout_not_has: ["HTTP/1.1 [45][0-9][0-9] "]
+    - name: Create a Sink Distributed Connector
+      command: |
+        curl -vs --stderr - -X POST -H "Content-Type: application/json"
+           --data @aws-rumo-integ-sink-tfa-prisma-0.json "http://localhost:8083/connectors"
+      stdout_has: ["HTTP/1.1 [2][0-9][0-9] "]
+      stdout_not_has: ["HTTP/1.1 [45][0-9][0-9] "]
+- name: Clean-up Containers
+  entries:
+    - name: Docker Compose Down
+      command: |
+        docker-compose -f docker-compose-all.yml -p kafkaconnectoracle down
+      stdout_not_has: ["error"]

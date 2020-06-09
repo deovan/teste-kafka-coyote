@@ -1,0 +1,3 @@
+sqlplus trasnlogic/engesis@10.200.92.119:1521/tlfd
+
+sqlplus controle_perdas/dSWARJSaTUxF@10.200.92.119:1521/DEV33

@@ -1,0 +1,19 @@
+{
+    "name": "aws-rumo-integ-sink-tfa-prisma-0",
+    "config": {
+        "connector.class": "io.confluent.connect.jdbc.JdbcSinkConnector",
+        "tasks.max": "1",
+        "topics": "translogic-1-vw-prisma-tfa-kakfa",
+        "batch.size": "10",
+        "connection.url": "jdbc:oracle:thin:@10.200.92.119:1521:DEV33",
+        "connection.user": "controle_perdas",
+        "connection.password": "dSWARJSaTUxF",
+        "table.name.format": "TFA",
+        "schema.pattern": "controle_perdas",
+        "insert.mode": "upsert",
+        "pk.mode": "record_value",
+        "pk.fields": "NUM_PROCESSO",
+        "auto.create": "false",
+        "auto.evolve": "false"
+    }
+}
